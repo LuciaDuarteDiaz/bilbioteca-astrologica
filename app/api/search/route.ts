@@ -1,5 +1,3 @@
-// app/api/search-entry/route.ts
-
 import { sql } from "@vercel/postgres";
 
 export async function POST(req: Request) {
@@ -13,21 +11,41 @@ export async function POST(req: Request) {
       });
     }
 
-    const lower = query.toLowerCase();
-    const terms = lower.split(" ");
+    const lower = query.toLowerCase().trim();
+
+    // Separar por comas
+    const terms = lower
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
 
     console.log("Buscando con términos:", terms);
 
-    const { rows } = await sql`
-      SELECT * FROM astro_entries
-      WHERE
-        LOWER(title) LIKE ${`%${lower}%`} OR
-        LOWER(description) LIKE ${`%${lower}%`} OR
-        planet ILIKE ${`%${lower}%`} OR
-        sign ILIKE ${`%${lower}%`} OR
-        related_planet ILIKE ${`%${lower}%`} OR
-        tags && ARRAY[${terms.map((term) => `'${term}'`).join(",")}]::text[]
-    `;
+    // Construimos condiciones manualmente
+    const conditions: string[] = [];
+    const values: string[] = [];
+
+    for (const term of terms) {
+      const likeTerm = `%${term}%`;
+      values.push(likeTerm, likeTerm, likeTerm, likeTerm, likeTerm, term);
+
+      conditions.push(`
+        LOWER(title) LIKE $${values.length - 5} OR
+        LOWER(description) LIKE $${values.length - 4} OR
+        planet ILIKE $${values.length - 3} OR
+        sign ILIKE $${values.length - 2} OR
+        related_planet ILIKE $${values.length - 1} OR
+        EXISTS (
+          SELECT 1 FROM unnest(tags) AS tag WHERE LOWER(tag) = $${values.length}
+        )
+      `);
+    }
+
+    const whereSQL = conditions.map((c) => `(${c})`).join(" OR ");
+    const querySQL = `SELECT * FROM astro_entries WHERE ${whereSQL}`;
+
+    const { rows } = await sql.query(querySQL, values);
+
     return new Response(JSON.stringify({ results: rows }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
