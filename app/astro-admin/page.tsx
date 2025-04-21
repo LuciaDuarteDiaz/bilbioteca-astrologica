@@ -73,8 +73,8 @@ export default function AstroAdminForm() {
   };
 
   return (
-    <div className="max-w-xl mx-auto py-10 px-4">
-      <h2 className="text-2xl font-bold mb-6">
+    <div className="max-w-md mx-auto py-10 px-4 bg-white shadow-lg rounded-lg">
+      <h2 className="text-2xl font-bold mb-6 text-center">
         Agregar nueva entrada astrológica
       </h2>
 
@@ -83,26 +83,26 @@ export default function AstroAdminForm() {
       )}
 
       {[
-        "title",
-        "planet",
-        "house",
-        "sign",
-        "aspect",
-        "related_planet",
-        "tags",
-      ].map((field) => (
-        <div key={field} className="mb-4">
+        { name: "title", label: "Título" },
+        { name: "planet", label: "Planeta" },
+        { name: "house", label: "Casa" },
+        { name: "sign", label: "Signo" },
+        { name: "aspect", label: "Aspecto" },
+        { name: "related_planet", label: "Planeta Relacionado" },
+        { name: "tags", label: "Etiquetas" },
+      ].map(({ name, label }) => (
+        <div key={name} className="mb-4">
           <Label className="block mb-1 capitalize">
-            {field.replace("_", " ")}
-            {(field === "title" || field === "tags") && (
+            {label}
+            {(name === "title" || name === "tags") && (
               <span className="text-red-500 ml-1">*</span>
             )}
           </Label>
           <Input
-            name={field}
-            value={(form as any)[field]}
+            name={name}
+            value={(form as any)[name]}
             onChange={handleChange}
-            placeholder={field === "tags" ? "Ej: sol, casa 4, hogar" : ""}
+            placeholder={name === "tags" ? "Ej: sol, casa 4, hogar" : ""}
           />
         </div>
       ))}
@@ -121,7 +121,7 @@ export default function AstroAdminForm() {
 
       <Button
         onClick={handleSubmit}
-        className="bg-black text-white px-6 py-2 rounded-full"
+        className="bg-black text-white px-6 py-2 rounded-full w-full hover:bg-gray-800 transition duration-300"
       >
         Guardar entrada
       </Button>
