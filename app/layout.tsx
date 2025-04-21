@@ -1,6 +1,5 @@
-// app/layout.tsx
-
-import "@/app/ui/global.css"; // Importa los estilos globales de Tailwind
+import "./ui/global.css";
+import { DM_Serif_Display } from "next/font/google";
 
 export default function RootLayout({
   children,
@@ -8,10 +7,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body className="bg-gradient-to-r from-[#9e7b29] via-[#f7f4ed] to-[#d1c7b7]">
-        {children}
-      </body>
+    <html lang="es" className={dmSerif.variable}>
+      <body className="bg-background text-foreground">{children}</body>
     </html>
   );
 }
+// layout.tsx
+const dmSerif = DM_Serif_Display({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-display",
+});
