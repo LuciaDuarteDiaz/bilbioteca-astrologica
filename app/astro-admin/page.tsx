@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { saveEntry } from "@/lib/actions";
+import TestCard from "./test";
 
 export default function AstroAdminForm() {
   const [form, setForm] = useState({
@@ -19,6 +21,7 @@ export default function AstroAdminForm() {
   });
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -28,7 +31,6 @@ export default function AstroAdminForm() {
   };
 
   const handleSubmit = async () => {
-    // Validación de campos obligatorios
     if (!form.title.trim() || !form.description.trim() || !form.tags.trim()) {
       setErrorMessage(
         "Por favor completa los campos obligatorios: título, descripción y etiquetas."
@@ -43,17 +45,10 @@ export default function AstroAdminForm() {
     };
 
     try {
-      const response = await fetch("/api/save-entry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
+      setSubmitting(true);
+      const data = await saveEntry(payload);
       alert(data.message || "Guardado exitosamente");
 
-      // Limpiar el formulario
       setForm({
         title: "",
         description: "",
@@ -69,62 +64,76 @@ export default function AstroAdminForm() {
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Hubo un error al guardar la entrada.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto py-10 px-4 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        Agregar nueva entrada astrológica
-      </h2>
+    <>
+      <div className="max-w-md mx-auto py-10 px-4 bg-white shadow-lg rounded-lg">
+        <h2 className="text-2xl font-bold mb-6 text-center">
+          Agregar nueva entrada astrológica
+        </h2>
 
-      {errorMessage && (
-        <div className="mb-4 text-red-600 font-medium">{errorMessage}</div>
-      )}
+        {errorMessage && (
+          <div className="mb-4 text-red-600 font-medium">{errorMessage}</div>
+        )}
 
-      {[
-        { name: "title", label: "Título" },
-        { name: "planet", label: "Planeta" },
-        { name: "house", label: "Casa" },
-        { name: "sign", label: "Signo" },
-        { name: "aspect", label: "Aspecto" },
-        { name: "related_planet", label: "Planeta Relacionado" },
-        { name: "tags", label: "Etiquetas" },
-      ].map(({ name, label }) => (
-        <div key={name} className="mb-4">
-          <Label className="block mb-1 capitalize">
-            {label}
-            {(name === "title" || name === "tags") && (
-              <span className="text-red-500 ml-1">*</span>
-            )}
+        {[
+          { name: "title", label: "Título" },
+          { name: "planet", label: "Planeta" },
+          { name: "house", label: "Casa" },
+          { name: "sign", label: "Signo" },
+          { name: "aspect", label: "Aspecto" },
+          { name: "related_planet", label: "Planeta Relacionado" },
+          { name: "tags", label: "Etiquetas" },
+        ].map(({ name, label }) => (
+          <div key={name} className="mb-6">
+            <Label className="block mb-2 capitalize text-gray-700">
+              {label}
+              {(name === "title" || name === "tags") && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
+            </Label>
+            <Input
+              name={name}
+              value={form[name]}
+              onChange={handleChange}
+              placeholder={name === "tags" ? "Ej: sol, casa 4, hogar" : ""}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+            />
+          </div>
+        ))}
+
+        <div className="mb-6">
+          <Label className="block mb-2 text-gray-700">
+            Descripción <span className="text-red-500">*</span>
           </Label>
-          <Input
-            name={name}
-            value={(form as any)[name]}
+          <Textarea
+            name="description"
+            value={form.description}
             onChange={handleChange}
-            placeholder={name === "tags" ? "Ej: sol, casa 4, hogar" : ""}
+            placeholder="Escribe aquí el texto astrológico..."
+            className="w-full p-3 border border-gray-300 rounded-lg"
           />
         </div>
-      ))}
 
-      <div className="mb-4">
-        <Label className="block mb-1">
-          Descripción <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Escribe aquí el texto astrológico..."
-        />
+        <Button
+          onClick={handleSubmit}
+          disabled={submitting}
+          className="bg-black text-white px-6 py-3 rounded-full w-full hover:bg-gray-800 transition duration-300 flex justify-center items-center gap-2"
+        >
+          {submitting ? (
+            <>
+              <div className="spinner"></div>
+              Guardando...
+            </>
+          ) : (
+            "Guardar entrada"
+          )}
+        </Button>
       </div>
-
-      <Button
-        onClick={handleSubmit}
-        className="bg-black text-white px-6 py-2 rounded-full w-full hover:bg-gray-800 transition duration-300"
-      >
-        Guardar entrada
-      </Button>
-    </div>
+    </>
   );
 }
