@@ -70,7 +70,6 @@ export default function AstroBiblioteca() {
       setSearchError("");
       const data = await searchEntries({ query: input });
       setResults(data.results || []);
-      setSelectedEntries([]);
     } catch (error) {
       setSearchError("Error al buscar entradas. Intenta nuevamente.");
       console.error("Search error:", error);
@@ -84,13 +83,9 @@ export default function AstroBiblioteca() {
   };
 
   const toggleEntry = (entry: AstroEntry) => {
-    const alreadySelected = selectedEntries.find(
-      (e) => e.title === entry.title
-    );
+    const alreadySelected = selectedEntries.find((e) => e.id === entry.id);
     if (alreadySelected) {
-      setSelectedEntries(
-        selectedEntries.filter((e) => e.title !== entry.title)
-      );
+      setSelectedEntries(selectedEntries.filter((e) => e.id !== entry.id));
     } else {
       setSelectedEntries([...selectedEntries, entry]);
     }
@@ -215,10 +210,16 @@ export default function AstroBiblioteca() {
                   ))}
                 </SortableContext>
               </DndContext>
-
               <div className="export-container">
                 <Button onClick={handleExportPDF} className="export-button">
                   Exportar a PDF
+                </Button>
+                <Button
+                  onClick={() => setSelectedEntries([])}
+                  variant="outline"
+                  className="clear-button ml-2"
+                >
+                  Limpiar Seleccionados
                 </Button>
               </div>
             </div>

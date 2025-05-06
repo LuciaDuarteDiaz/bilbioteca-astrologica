@@ -2,25 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* cualquier otro estilo personalizado después */
-/* Reset básico para asegurarnos de que no haya márgenes por defecto */
+/* Reset básico */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Fuente y fondo principal */
 html,
 body {
-  font-family: "DM Serif Display", serif; /* Tu fuente personalizada */
+  font-family: "DM Serif Display", serif;
   line-height: 1.5;
-  background-color: #f9fafb; /* Fondo gris claro */
-  color: #333; /* Color de texto oscuro */
+  background-color: #f9fafb;
+  color: #333;
   padding: 0;
   margin: 0;
 }
 
-/* Centrado de todo el contenido */
+/* Centrado del contenido */
 body {
   display: flex;
   justify-content: center;
@@ -28,7 +28,7 @@ body {
   min-height: 100vh;
 }
 
-/* Formulario con padding y centrado */
+/* ===== Formularios ===== */
 form {
   max-width: 600px;
   width: 100%;
@@ -38,18 +38,6 @@ form {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilo para los inputs y textarea */
-input,
-textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 16px;
-  margin-bottom: 16px; /* Espaciado entre campos */
-}
-
-/* Asegurarse de que las etiquetas estén sobre los inputs */
 label {
   display: block;
   margin-bottom: 6px;
@@ -62,56 +50,17 @@ label span {
   color: red;
 }
 
-/* Cards con padding y borde */
-/* .card {
-  padding: 16px;
-  border: 1px solid #e5e7eb;
+input,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px; /* Separación entre las cards */
-/* } */
-*/
-
-/* Botones con padding y estilo */
-button {
-  padding: 12px 20px;
-  border-radius: 8px;
-  background-color: #000;
-  color: white;
-  border: none;
   font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #333;
-}
-
-/* Mensajes de error */
-.error-message {
-  color: #e74c3c;
-  font-size: 14px;
   margin-bottom: 16px;
 }
-/* Estilo para el input de búsqueda */
-input {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  font-size: 16px;
-}
 
-/* Estilo para las cards
-.card {
-  padding: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-} */
-/* Estilos CSS */
+/* ===== Contenedor general ===== */
 .astro-biblioteca-container {
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -134,6 +83,7 @@ input {
   gap: 30px;
 }
 
+/* ===== Buscador y botones ===== */
 .search-container {
   display: flex;
   flex-direction: column;
@@ -156,6 +106,7 @@ input {
   gap: 15px;
 }
 
+/* Botones */
 button {
   padding: 12px 25px;
   border-radius: 8px;
@@ -163,49 +114,124 @@ button {
   color: white;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 16px;
+  transition: background 0.3s ease;
 }
 
 button:hover {
   background: #34495e;
 }
 
+/* Botón de exportar (estilo coherente con los demás) */
+.export-button {
+  background: #2c3e50 !important;
+}
+
+.export-button:hover {
+  background: #34495e !important;
+}
+
+/* Contenedor de exportación */
+.export-container {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* ===== Resultados ===== */
 .results-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1rem;
 }
+
 .results-grid .card {
-  height: 300px; /* o min-height: 300px para más flexibilidad */
+  height: 300px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
+
 .results-grid .card p {
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 8; /* muestra 4 líneas como máximo */
+  -webkit-line-clamp: 8;
   -webkit-box-orient: vertical;
 }
 
-/* .card {
-  padding: 20px;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  background: white;
-  transition: all 0.2s ease;
+/* ===== Cards ===== */
+.card {
+  border: 1px solid #ccc;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  background-color: #fff;
   cursor: pointer;
-} */
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+  width: 250px;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
-/* .card.selected {
-  border-color: #3498db;
-  background: #f8f9fa;
-} */
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
+.card.selected {
+  border-color: #6366f1;
+  background-color: #f3f4f6;
+}
+
+.card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #2c3e50;
+}
+
+.card p {
+  font-size: 0.875rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.card-content {
+  padding: 0;
+}
+
+.card-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.card-footer {
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* ===== Detalles de entrada ===== */
 .entry-details {
-  margin-top: 15px;
-  font-size: 0.9em;
-  color: #666;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.entry-details div {
+  margin-bottom: 0.5rem;
+}
+
+/* ===== Reporte y mensajes ===== */
+.report-section {
+  margin-top: 30px;
+  padding: 25px;
+  background: #f8f9fa;
+  border-radius: 12px;
 }
 
 .no-results {
@@ -214,13 +240,13 @@ button:hover {
   font-style: italic;
 }
 
-.report-section {
-  margin-top: 30px;
-  padding: 25px;
-  background: #f8f9fa;
-  border-radius: 12px;
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-bottom: 16px;
 }
 
+/* ===== Sortable items ===== */
 .sortable-item {
   padding: 15px;
   margin: 10px 0;
@@ -230,21 +256,7 @@ button:hover {
   cursor: move;
 }
 
-.export-container {
-  margin-top: 25px;
-  text-align: center;
-}
-
-.export-button {
-  background: #27ae60 !important;
-  padding: 15px 40px !important;
-  font-size: 1.1em !important;
-}
-
-.export-button:hover {
-  background: #219a52 !important;
-}
-
+/* ===== Tipografía ===== */
 h1 {
   font-size: 2.5em;
   color: #2c3e50;
@@ -257,17 +269,7 @@ h2 {
   margin-bottom: 20px;
 }
 
-@media (max-width: 768px) {
-  .astro-biblioteca-container {
-    grid-template-columns: 1fr;
-    padding: 20px;
-  }
-
-  .left-column {
-    position: static;
-  }
-}
-/* Spinner animation */
+/* ===== Spinner de carga ===== */
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -293,119 +295,19 @@ h2 {
   min-height: 300px;
 }
 
-/* Para el formulario de admin */
+/* Tema oscuro para spinner en fondo negro */
 .bg-black .spinner {
   border-top-color: white;
 }
-/* Mejora visual para las cards */
-/* .card {
-  padding: 20px;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  background-color: white;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
-  cursor: pointer;
-  position: relative;
-} */
 
-/* .card:hover {
-  border-color: #3498db;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-} */
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .astro-biblioteca-container {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
 
-/* Indicación visual cuando una card está seleccionada */
-/* .card.selected {
-  border-color: #3498db;
-  background-color: #f0f8ff;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
-} */
-
-/* Pequeño indicador visual de selección */
-/* .card::after {
-  content: "✓";
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 20px;
-  color: #3498db;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-} */
-
-/* .card.selected::after {
-  opacity: 1;
-} */
-/* En tu archivo global.css */
-.card {
-  border: 1px solid #ccc;
-  border-radius: 0.75rem;
-  padding: 0.75rem;
-  background-color: #fff;
-  cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.2s ease;
-  width: 250px; /* o max-width si querés que se ajuste */
-  min-height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.card h3 {
-  font-size: 1.25rem;
-  color: #2c3e50;
-  margin-bottom: 0.75rem;
-  font-weight: 600;
-}
-
-.card p {
-  color: #4a5568;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-
-.card.selected {
-  border-color: #6366f1; /* highlight purple */
-  background-color: #f3f4f6;
-}
-
-.entry-details {
-  padding-top: 1rem;
-  margin-top: 1rem;
-  border-top: 1px solid #e2e8f0;
-  font-size: 0.875rem;
-  color: #64748b;
-}
-
-.entry-details div {
-  margin-bottom: 0.5rem;
-}
-
-.card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Para el texto dentro de las cards */
-
-.card-content {
-  padding: 0;
-}
-.card-header {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.card-footer {
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
-}
-.card h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.card p {
-  font-size: 0.875rem;
-  color: #555;
+  .left-column {
+    position: static;
+  }
 }
