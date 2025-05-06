@@ -24,7 +24,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { searchEntries } from "@/lib/actions";
-
+import { Document, Packer, Paragraph, TextRun } from "docx";
+import { saveAs } from "file-saver";
 function SortableItem({
   entry,
   onRemove,
@@ -64,6 +65,38 @@ export default function AstroBiblioteca() {
   const [searchError, setSearchError] = useState("");
   const router = useRouter();
 
+  const handleExportWord = async () => {
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: selectedEntries.flatMap((entry) => [
+            new Paragraph({
+              children: [
+                new TextRun({ text: entry.title, bold: true, size: 28 }),
+              ],
+              spacing: { after: 100 },
+            }),
+            new Paragraph({
+              children: [new TextRun({ text: entry.description, size: 24 })],
+              spacing: { after: 200 },
+            }),
+          ]),
+        },
+      ],
+    });
+
+    const blob = await Packer.toBlob(doc);
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "informe-astrologico.docx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
   const handleSearch = async () => {
     try {
       setIsLoading(true);
@@ -214,6 +247,13 @@ export default function AstroBiblioteca() {
                 <Button onClick={handleExportPDF} className="export-button">
                   Exportar a PDF
                 </Button>
+                <Button
+                  onClick={handleExportWord}
+                  className="export-button ml-2"
+                >
+                  Exportar a Word
+                </Button>
+
                 <Button
                   onClick={() => setSelectedEntries([])}
                   variant="outline"
