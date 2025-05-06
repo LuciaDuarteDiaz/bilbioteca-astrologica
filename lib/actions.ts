@@ -78,3 +78,62 @@ export async function searchEntries(data: any) {
     return { message: "Error en la búsqueda" + error.detail };
   }
 }
+export async function updateEntry(data: any) {
+  const {
+    id,
+    title,
+    description,
+    planet,
+    house,
+    sign,
+    aspect,
+    related_planet,
+    tags,
+  } = data;
+
+  if (!id) {
+    return { message: "ID requerido para actualizar la entrada" };
+  }
+
+  try {
+    await sql`
+      UPDATE astro_entries
+      SET
+        title = ${title},
+        description = ${description},
+        planet = ${planet},
+        house = ${house},
+        sign = ${sign},
+        aspect = ${aspect},
+        related_planet = ${related_planet},
+        tags = ${tags}
+      WHERE id = ${id}
+    `;
+
+    return { message: "Entrada actualizada correctamente" };
+  } catch (error) {
+    console.error("DB Update Error:", error);
+    return {
+      message: "Error al actualizar la base de datos: " + error.detail,
+    };
+  }
+}
+export async function getAllEntries() {
+  try {
+    const { rows } = await sql`SELECT * FROM astro_entries ORDER BY id DESC`;
+    console.log("Fetched entries:", rows.length);
+    return rows;
+  } catch (error) {
+    console.error("DB Fetch Error:", error);
+    return [];
+  }
+}
+export async function deleteEntry(id: number) {
+  try {
+    await sql`DELETE FROM astro_entries WHERE id = ${id}`;
+    return { message: "Entrada eliminada correctamente" };
+  } catch (error) {
+    console.error("DB Delete Error:", error);
+    return { message: "Error al eliminar la entrada" + error.detail };
+  }
+}

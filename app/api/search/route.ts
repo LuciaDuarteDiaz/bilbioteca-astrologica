@@ -1,5 +1,6 @@
 import { sql } from "@vercel/postgres";
-
+import { NextResponse } from "next/server";
+import { getAllEntries } from "@/lib/actions";
 export async function POST(req: Request) {
   try {
     const { query } = await req.json();
@@ -57,4 +58,9 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "application/json" },
     });
   }
+}
+
+export async function GET() {
+  const data = await getAllEntries();
+  return NextResponse.json(data);
 }
