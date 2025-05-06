@@ -1,15 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { saveEntry } from "@/lib/actions";
-import TestCard from "./test";
+import {
+  saveEntry,
+  updateEntry,
+  getAllEntries,
+  deleteEntry,
+} from "@/lib/actions";
 
 export default function AstroAdminForm() {
   const [form, setForm] = useState({
+    id: null,
     title: "",
     description: "",
     planet: "",
@@ -20,8 +25,19 @@ export default function AstroAdminForm() {
     tags: "",
   });
 
+  const [entries, setEntries] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    fetchEntries();
+  }, [submitting]);
+  const fetchEntries = async () => {
+    const res = await fetch("/api/search");
+    const data = await res.json();
+    setEntries(data);
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -46,10 +62,17 @@ export default function AstroAdminForm() {
 
     try {
       setSubmitting(true);
-      const data = await saveEntry(payload);
-      alert(data.message || "Guardado exitosamente");
+      let data;
+      if (editing && form.id) {
+        data = await updateEntry(payload);
+      } else {
+        data = await saveEntry(payload);
+      }
 
+      alert(data.message || "Guardado exitosamente");
+      await fetchEntries(); // <- Esperamos a que termine antes de limpiar
       setForm({
+        id: null,
         title: "",
         description: "",
         planet: "",
@@ -59,8 +82,8 @@ export default function AstroAdminForm() {
         related_planet: "",
         tags: "",
       });
-
       setErrorMessage("");
+      setEditing(false);
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Hubo un error al guardar la entrada.");
@@ -69,11 +92,155 @@ export default function AstroAdminForm() {
     }
   };
 
+  const handleEdit = (entry) => {
+    setForm({
+      ...entry,
+      tags: entry.tags.join(", "),
+    });
+    setEditing(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("¿Estás seguro de que quieres eliminar esta entrada?")) return;
+
+    try {
+      const res = await deleteEntry(id);
+      alert(res.message);
+      await fetchEntries(); // <- Aseguramos que se actualice la lista
+    } catch (error) {
+      console.error("Error deleting:", error);
+      alert("Error al eliminar la entrada.");
+    }
+  };
+  const handleCancelEdit = () => {
+    setForm({
+      id: null,
+      title: "",
+      description: "",
+      planet: "",
+      house: "",
+      sign: "",
+      aspect: "",
+      related_planet: "",
+      tags: "",
+    });
+    setErrorMessage("");
+    setEditing(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // return (
+  //   <div className="astro-biblioteca-container">
+  //     <div className="left-column">
+  //       <h2 className="text-2xl font-bold mb-6 text-center">
+  //         {editing
+  //           ? "Editar entrada astrológica"
+  //           : "Agregar nueva entrada astrológica"}
+  //       </h2>
+
+  //       {errorMessage && (
+  //         <div className="mb-4 text-red-600 font-medium">{errorMessage}</div>
+  //       )}
+
+  //       {[
+  //         { name: "title", label: "Título" },
+  //         { name: "planet", label: "Planeta" },
+  //         { name: "house", label: "Casa" },
+  //         { name: "sign", label: "Signo" },
+  //         { name: "aspect", label: "Aspecto" },
+  //         { name: "related_planet", label: "Planeta Relacionado" },
+  //         { name: "tags", label: "Etiquetas" },
+  //       ].map(({ name, label }) => (
+  //         <div key={name} className="mb-6">
+  //           <Label className="block mb-2 capitalize text-gray-700">
+  //             {label}
+  //             {(name === "title" || name === "tags") && (
+  //               <span className="text-red-500 ml-1">*</span>
+  //             )}
+  //           </Label>
+  //           <Input
+  //             name={name}
+  //             value={form[name] || ""}
+  //             onChange={handleChange}
+  //             placeholder={name === "tags" ? "Ej: sol, casa 4, hogar" : ""}
+  //             className="w-full p-3 border border-gray-300 rounded-lg"
+  //           />
+  //         </div>
+  //       ))}
+
+  //       <div className="mb-6">
+  //         <Label className="block mb-2 text-gray-700">
+  //           Descripción <span className="text-red-500">*</span>
+  //         </Label>
+  //         <Textarea
+  //           name="description"
+  //           value={form.description}
+  //           onChange={handleChange}
+  //           placeholder="Escribe aquí el texto astrológico..."
+  //           className="w-full p-3 border border-gray-300 rounded-lg"
+  //         />
+  //       </div>
+
+  //       <Button
+  //         onClick={handleSubmit}
+  //         disabled={submitting}
+  //         className="bg-black text-white px-6 py-3 rounded-full w-full hover:bg-gray-800 transition duration-300 flex justify-center items-center gap-2"
+  //       >
+  //         {submitting ? (
+  //           <>
+  //             <div className="spinner"></div>
+  //             Guardando...
+  //           </>
+  //         ) : editing ? (
+  //           "Actualizar entrada"
+  //         ) : (
+  //           "Guardar entrada"
+  //         )}
+  //       </Button>
+  //       {editing && (
+  //         <Button
+  //           variant="outline"
+  //           onClick={handleCancelEdit}
+  //           className="bg-black text-white px-6 py-3 rounded-full w-full hover:bg-gray-800 transition duration-300 flex justify-center items-center gap-2"
+  //         >
+  //           Cancelar edición
+  //         </Button>
+  //       )}
+  //     </div>
+
+  //     <div className="right-column">
+  //       <h3 className="text-xl font-bold mb-4">Entradas existentes</h3>
+  //       {entries.map((entry) => (
+  //         <div key={entry.id}>
+  //           {" "}
+  //           <div className="font-bold text-lg">{entry.title}</div>
+  //           <div className="text-sm text-gray-700 mb-2">
+  //             {entry.description}
+  //           </div>
+  //           <div>
+  //             <Button variant="outline" onClick={() => handleEdit(entry)}>
+  //               Editar
+  //             </Button>
+  //             <Button
+  //               variant="destructive"
+  //               onClick={() => handleDelete(entry.id)}
+  //             >
+  //               Eliminar
+  //             </Button>
+  //           </div>
+  //         </div>
+  //       ))}
+  //     </div>
+  //   </div>
+  // );
   return (
-    <>
-      <div className="max-w-md mx-auto py-10 px-4 bg-white shadow-lg rounded-lg">
+    <div className="astro-biblioteca-container flex flex-col md:flex-row gap-8">
+      <div className="left-column w-full md:w-1/2">
         <h2 className="text-2xl font-bold mb-6 text-center">
-          Agregar nueva entrada astrológica
+          {editing
+            ? "Editar entrada astrológica"
+            : "Agregar nueva entrada astrológica"}
         </h2>
 
         {errorMessage && (
@@ -98,7 +265,7 @@ export default function AstroAdminForm() {
             </Label>
             <Input
               name={name}
-              value={form[name]}
+              value={form[name] || ""}
               onChange={handleChange}
               placeholder={name === "tags" ? "Ej: sol, casa 4, hogar" : ""}
               className="w-full p-3 border border-gray-300 rounded-lg"
@@ -119,21 +286,84 @@ export default function AstroAdminForm() {
           />
         </div>
 
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="bg-black text-white px-6 py-3 rounded-full w-full hover:bg-gray-800 transition duration-300 flex justify-center items-center gap-2"
-        >
-          {submitting ? (
-            <>
-              <div className="spinner"></div>
-              Guardando...
-            </>
-          ) : (
-            "Guardar entrada"
-          )}
-        </Button>
+        {editing ? (
+          <div className="flex gap-4">
+            <Button
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="bg-black text-white px-6 py-3 rounded-full w-1/2 hover:bg-gray-800 transition duration-300 flex justify-center items-center gap-2"
+            >
+              {submitting ? (
+                <>
+                  <div className="spinner"></div>
+                  Guardando...
+                </>
+              ) : (
+                "Actualizar entrada"
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditing(false);
+                setForm({
+                  id: null,
+                  title: "",
+                  description: "",
+                  planet: "",
+                  house: "",
+                  sign: "",
+                  aspect: "",
+                  related_planet: "",
+                  tags: "",
+                });
+                setErrorMessage("");
+              }}
+              className="px-6 py-3 rounded-full w-1/2"
+            >
+              Cancelar edición
+            </Button>
+          </div>
+        ) : (
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="bg-black text-white px-6 py-3 rounded-full w-full hover:bg-gray-800 transition duration-300 flex justify-center items-center gap-2"
+          >
+            {submitting ? (
+              <>
+                <div className="spinner"></div>
+                Guardando...
+              </>
+            ) : (
+              "Guardar entrada"
+            )}
+          </Button>
+        )}
       </div>
-    </>
+
+      <div className="right-column w-full md:w-1/2">
+        <h3 className="text-xl font-bold mb-4">Entradas existentes</h3>
+        {entries.map((entry) => (
+          <div key={entry.id}>
+            <div className="font-bold text-lg">{entry.title}</div>
+            <div className="text-sm text-gray-700 mb-2">
+              {entry.description}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => handleEdit(entry)}>
+                Editar
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => handleDelete(entry.id)}
+              >
+                Eliminar
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
