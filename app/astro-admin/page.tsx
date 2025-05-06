@@ -11,6 +11,8 @@ import {
   getAllEntries,
   deleteEntry,
 } from "@/lib/actions";
+import { useRouter } from "next/navigation";
+import { FaHome } from "react-icons/fa";
 
 export default function AstroAdminForm() {
   const [form, setForm] = useState({
@@ -29,6 +31,7 @@ export default function AstroAdminForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [editing, setEditing] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     fetchEntries();
@@ -237,6 +240,12 @@ export default function AstroAdminForm() {
   return (
     <div className="astro-biblioteca-container flex flex-col md:flex-row gap-8">
       <div className="left-column w-full md:w-1/2">
+        <div
+          onClick={() => router.push("/")}
+          className="flex items-center gap-2 mb-6 text-gray-700 hover:text-black cursor-pointer transition-colors duration-200"
+        >
+          <FaHome size={20} />
+        </div>
         <h2 className="text-2xl font-bold mb-6 text-center">
           {editing
             ? "Editar entrada astrológica"
@@ -341,7 +350,6 @@ export default function AstroAdminForm() {
           </Button>
         )}
       </div>
-
       <div className="right-column w-full md:w-1/2">
         <h3 className="text-xl font-bold mb-4">Entradas existentes</h3>
         {entries.map((entry) => (
